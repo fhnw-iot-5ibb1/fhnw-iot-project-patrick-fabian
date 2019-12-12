@@ -241,5 +241,7 @@ void loop() {
   else
     Serial.println("No data available");
 
-  delay(15000);
+  Serial.println("");
+  Serial.println("Delay until next measurement ...");
+  delay(30000);
 }
