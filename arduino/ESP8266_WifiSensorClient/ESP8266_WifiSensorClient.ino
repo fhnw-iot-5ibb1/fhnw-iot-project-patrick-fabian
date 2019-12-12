@@ -1,6 +1,8 @@
 #include <ESP8266WiFi.h>
 #include <time.h>
 #include <WifiCredentials.h>
+#include <Wire.h>
+#include "SparkFun_SCD30_Arduino_Library.h" 
 
 // based on https://github.com/SensorsIot/HTTPS-for-Makers licensed under
 // MIT https://github.com/SensorsIot/HTTPS-for-Makers/blob/master/LICENSE
@@ -136,30 +138,9 @@ const char *host = "api.thingspeak.com";
 const char *path = "/update";
 const int port = 443;
 
-void setup() {
-  Serial.begin(115200);
-  //Serial.setDebugOutput(true);
-  Serial.print("\nConnecting to network ");
-  Serial.println(ssid);
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(100); // keeps watchdog happy
-  }
-  Serial.print("Connected to network, local IP = "); 
-  Serial.println(WiFi.localIP());
+SCD30 airSensor;
 
-  Serial.println("Setting system time");
-  // call built-in, ESP8266-specific function in time.cpp
-  // https://github.com/esp8266/Arduino/blob/master/cores/esp8266/time.cpp#L61
-  const int timezone = 0;
-  const int dst_off = 0;
-  configTime(timezone * 3600, dst_off, "pool.ntp.org", "time.nist.gov");
-  // wait for time() being adjusted, as a side effect of configTime
-  while (time(NULL) < 28800 * 2) {
-    delay(500);
-  }
-
+void sendMeasurements(uint16_t co2, float temp, float hum) {
   BearSSL::WiFiClientSecure client; // use TLS
   //client.allowSelfSignedCerts();
   Serial.println("Setting CA certificate ");
@@ -177,11 +158,11 @@ void setup() {
       client.print("?api_key=");
       client.print(api_key);
       client.print("&field1=");
-      client.print("16");
+      client.print(co2);
       client.print("&field2=");
-      client.print("16");
+      client.print(temp);
       client.print("&field3=");
-      client.print("16");
+      client.print(hum);
       client.print(" HTTP/1.1\r\n");
       client.print("Host: ");
       client.print(host);
@@ -204,4 +185,61 @@ void setup() {
   }
 }
 
-void loop() {}
+void setup() {
+  Serial.begin(115200);
+  //Serial.setDebugOutput(true);
+  
+  // Setup SCD30 Sensor
+  Wire.begin();
+  Serial.println("Setup SCD30");
+
+  airSensor.begin(); //This will cause readings to occur every two seconds
+  
+  // Setup WIFI
+  Serial.print("\nConnecting to network ");
+  Serial.println(ssid);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(100); // keeps watchdog happy
+  }
+  Serial.print("Connected to network, local IP = "); 
+  Serial.println(WiFi.localIP());
+
+  Serial.println("Setting system time");
+  // call built-in, ESP8266-specific function in time.cpp
+  // https://github.com/esp8266/Arduino/blob/master/cores/esp8266/time.cpp#L61
+  const int timezone = 0;
+  const int dst_off = 0;
+  configTime(timezone * 3600, dst_off, "pool.ntp.org", "time.nist.gov");
+  // wait for time() being adjusted, as a side effect of configTime
+  while (time(NULL) < 28800 * 2) {
+    delay(500);
+  }
+}
+
+void loop() {
+  if (airSensor.dataAvailable())
+  {
+    uint16_t co2 = airSensor.getCO2();
+    float temp = airSensor.getTemperature();
+    float hum = airSensor.getHumidity();
+    
+    Serial.print("co2(ppm):");
+    Serial.print(co2);
+
+    Serial.print(" temp(C):");
+    Serial.print(temp, 1);
+
+    Serial.print(" humidity(%):");
+    Serial.print(hum, 1);
+
+    Serial.println();
+    
+    sendMeasurements(co2, temp, hum);
+  }
+  else
+    Serial.println("No data available");
+
+  delay(15000);
+}
