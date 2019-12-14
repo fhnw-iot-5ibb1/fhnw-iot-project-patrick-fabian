@@ -5,6 +5,7 @@ import button
 import thingSpeakService
 import buzzer
 import servo
+import rotation
 from grove import grove_4_digit_display
 
 class StateMachine():
@@ -23,6 +24,9 @@ class StateMachine():
         self.alarm_muted = False
         
         self.i = 0
+        self.last_rotation = 0
+        self.last_rotation_time = 0
+        self.rotation_delay = 5
 
     def run(self):
         if self.state != self.old_state:
@@ -88,12 +92,21 @@ class StateMachine():
         self.test_for_alarm()
 
     def set_co2_threshold(self):
-        r = self.rotation_sensor.get()
+        rotation_co2 = round(self.rotation_sensor.get_translated_value() / 50) * 50
+        current_time = time()
+        print(f"current rotation: {rotation_co2}; last_rotation: {self.last_rotation}")
+        if rotation_co2 != self.last_rotation:
+          self.last_rotation = rotation_co2
+          self.last_rotation_time = current_time
         
-        self.show_co2(self.co2_threshold)
+        self.show_co2(rotation_co2)
+        self.co2_threshold = rotation_co2
+        print(f"rotation_co2: {rotation_co2}, time diff: {current_time} {self.last_rotation_time} {current_time - self.last_rotation_time}")
 
         # next state
-        self.state = self.co2
+        if current_time - self.last_rotation_time > self.rotation_delay or self.button.was_pressed():
+          self.state = self.co2
+          self.last_rotation = -1
 
     def alarm(self):
         self.show_co2()
@@ -144,9 +157,10 @@ button = button.Button(pin=5, double_press_threshold=0.4)
 service = thingSpeakService.ThingSpeakService()
 buzzer = buzzer.Buzzer()
 servo = servo.Servo()
+rot_sensor = rotation.RotationSensor()
 
 dummy = Dummy()
-SM = StateMachine(button=button, display=disp, sensor_service=service, buzzer=buzzer, rotation_sensor=dummy, servo=servo)
+SM = StateMachine(button=button, display=disp, sensor_service=service, buzzer=buzzer, rotation_sensor=rot_sensor, servo=servo)
 try:
   while True:
       SM.run()
