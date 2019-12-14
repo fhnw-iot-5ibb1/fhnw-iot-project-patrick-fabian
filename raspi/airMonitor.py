@@ -22,6 +22,7 @@ class StateMachine():
         self.state = self.co2
         self.old_state = self.state
         self.state_change_time = 0
+        self.cycle_display_delay = 5
         self.co2_threshold = 2000
         self.alarm_muted = False
         
@@ -60,7 +61,7 @@ class StateMachine():
         states = [self.temp, self.hum, self.co2]
         if self.button.was_double_pressed():
             self.state = self.set_co2_threshold
-        elif self.button.was_pressed():
+        elif self.button.was_pressed() or time() - self.state_change_time > self.cycle_display_delay:
             self.state = states[(states.index(self.state) + 1) % len(states)]
         self.button.reset()
         
