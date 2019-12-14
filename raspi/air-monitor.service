@@ -1,0 +1,10 @@
+[Unit]
+Description=Air Monitor Service
+After=network.target
+
+[Service]
+Type=idle
+ExecStart=/usr/bin/python3 /home/pi/fhnw-iot-project-patrick-fabian/raspi/airMonitor.py >/home/pi/air-monitor.log 2>&1 &
+
+[Install]
+WantedBy=network.target
