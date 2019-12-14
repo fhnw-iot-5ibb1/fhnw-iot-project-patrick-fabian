@@ -6,16 +6,18 @@ import thingSpeakService
 import buzzer
 import servo
 import rotation
+import led
 from grove import grove_4_digit_display
 
 class StateMachine():
-    def __init__(self, button, display, sensor_service, buzzer, rotation_sensor, servo):
+    def __init__(self, button, display, sensor_service, buzzer, rotation_sensor, servo, led):
         self.button = button
         self.display = display
         self.sensor_service = sensor_service
         self.buzzer = buzzer
         self.rotation_sensor = rotation_sensor
         self.servo = servo
+        self.led = led
 
         self.state = self.co2
         self.old_state = self.state
@@ -34,7 +36,14 @@ class StateMachine():
           self.state_change_time = time()
         
         # display co2 measurement with servo
-        self.servo.set_pulsewidth(self.sensor_service.get_co2())
+        co2 = self.sensor_service.get_co2()
+        self.servo.set_pulsewidth(co2)
+        
+        # show with led if over threshold
+        if co2 > self.co2_threshold:
+          self.led.turn_on()
+        else:
+          self.led.turn_off()
         
         # run state
         self.state()
@@ -94,14 +103,12 @@ class StateMachine():
     def set_co2_threshold(self):
         rotation_co2 = round(self.rotation_sensor.get_translated_value() / 50) * 50
         current_time = time()
-        print(f"current rotation: {rotation_co2}; last_rotation: {self.last_rotation}")
         if rotation_co2 != self.last_rotation:
           self.last_rotation = rotation_co2
           self.last_rotation_time = current_time
         
         self.show_co2(rotation_co2)
         self.co2_threshold = rotation_co2
-        print(f"rotation_co2: {rotation_co2}, time diff: {current_time} {self.last_rotation_time} {current_time - self.last_rotation_time}")
 
         # next state
         if current_time - self.last_rotation_time > self.rotation_delay or self.button.was_pressed():
@@ -158,9 +165,10 @@ service = thingSpeakService.ThingSpeakService()
 buzzer = buzzer.Buzzer()
 servo = servo.Servo()
 rot_sensor = rotation.RotationSensor()
+led_actuator = led.Led()
 
 dummy = Dummy()
-SM = StateMachine(button=button, display=disp, sensor_service=service, buzzer=buzzer, rotation_sensor=rot_sensor, servo=servo)
+SM = StateMachine(button=button, display=disp, sensor_service=service, buzzer=buzzer, rotation_sensor=rot_sensor, servo=servo, led=led_actuator)
 try:
   while True:
       SM.run()
