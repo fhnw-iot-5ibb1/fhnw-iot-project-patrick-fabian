@@ -8,7 +8,7 @@ class Servo:
         self.gpio.set_servo_pulsewidth(self.servo_pin, 1500)
 
     def set_pulsewidth(self, pulsewidth):
-        self.pgio.set_servo_pulsewidth(self.servo_pin, self.translate(pulsewidth, 0, 5000, 500, 2450))
+        self.gpio.set_servo_pulsewidth(self.servo_pin, self.translate(pulsewidth, 0, 5000, 500, 2450))
 
     # credits go to stackoverflow (https://stackoverflow.com/questions/1969240/mapping-a-range-of-values-to-another)
     def translate(self, value, fromMin, fromMax, toMin, toMax):
