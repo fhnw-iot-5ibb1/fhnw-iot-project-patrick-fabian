@@ -3,6 +3,7 @@
 #include <WifiCredentials.h>
 #include <Wire.h>
 #include "SparkFun_SCD30_Arduino_Library.h" 
+#include "DHTesp.h"
 
 // based on https://github.com/SensorsIot/HTTPS-for-Makers licensed under
 // MIT https://github.com/SensorsIot/HTTPS-for-Makers/blob/master/LICENSE
@@ -139,6 +140,7 @@ const char *path = "/update";
 const int port = 443;
 
 SCD30 airSensor;
+DHTesp dht;
 
 void sendMeasurements(uint16_t co2, float temp, float hum) {
   BearSSL::WiFiClientSecure client; // use TLS
@@ -195,6 +197,9 @@ void setup() {
 
   airSensor.begin(); //This will cause readings to occur every two seconds
   
+  // Setup DHT Sensor
+  dht.setup(0, DHTesp::DHT11); // Connect DHT sensor to GPIO 0 (Grove D4)
+  
   // Setup WIFI
   Serial.print("\nConnecting to network ");
   Serial.println(ssid);
@@ -225,6 +230,9 @@ void loop() {
     float temp = airSensor.getTemperature();
     float hum = airSensor.getHumidity();
     
+    float temp_dht = dht.getHumidity();
+    float hum_dht = dht.getHumidity();
+    
     Serial.print("co2(ppm):");
     Serial.print(co2);
 
@@ -233,6 +241,12 @@ void loop() {
 
     Serial.print(" humidity(%):");
     Serial.print(hum, 1);
+    
+    Serial.print(" temp_dht(C):");
+    Serial.print(temp_dht, 1);
+
+    Serial.print(" humidity_dht(%):");
+    Serial.print(hum_dht, 1);
 
     Serial.println();
     
