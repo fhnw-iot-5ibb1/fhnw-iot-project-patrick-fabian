@@ -6,10 +6,11 @@ import thingSpeakService
 from grove import grove_4_digit_display
 
 class StateMachine():
-    def __init__(self, button, display, sensor_service):
+    def __init__(self, button, display, sensor_service, buzzer):
         self.button = button
         self.display = display
         self.sensor_service = sensor_service
+        self.buzzer = buzzer
 
         self.state = self.co2
         self.co2_threshold = 2000
@@ -39,10 +40,16 @@ class StateMachine():
     def show_text(self, text):
         self.i = (self.i + 1) % (len(text) + 4)
         self.display.show(f"    {text}    "[self.i:self.i+4])
+        
+    def show_co2(self):
+        co2 = self.sensor_service.get_co2()
+        # print(f"co2: {co2}")
+        co2str = f"{co2:4}"
+        self.display.show(co2str[-4:])
 
     def temp(self):
         t = self.sensor_service.get_temp()
-        print(f"temp: {t}")
+        # print(f"temp: {t}")
         self.display.show(f"{str(round(t))[-2:]}*C")
 
         # next state
@@ -51,7 +58,7 @@ class StateMachine():
 
     def hum(self):
         h = self.sensor_service.get_hum()
-        print(f"hum: {h}")
+        # print(f"hum: {h}")
         self.display.show(f"h {str(round(h))[-2:]}")
 
         # next state
@@ -59,9 +66,7 @@ class StateMachine():
         self.test_for_alarm()
 
     def co2(self):
-        co2 = self.sensor_service.get_co2()
-        print(f"co2: {co2}")
-        self.display.show(f"{co2:4}")
+        self.show_co2()
 
         # next state
         self.cycle_display()
@@ -74,14 +79,17 @@ class StateMachine():
         self.state = self.co2
 
     def alarm(self):
-        print("alarm")
+        self.show_co2()
+        self.buzzer.turn_on()
 
         # next state
         if self.button.was_pressed():
             self.state = self.co2
+            self.buzzer.turn_off()
         if self.sensor_service.get_co2() < self.co2_threshold:
             self.alarm_muted = True
             self.state = self.co2
+            self.buzzer.turn_off()
 
 class Dummy():
     def __init__(self):
@@ -101,6 +109,12 @@ class Dummy():
         
     def reset(self):
         pass
+        
+    def turn_on(self):
+        print("UUUUIIIIIIIUUUUUUIIII")
+    
+    def turn_off(self):
+        pass
 
     def get_co2(self):
         return self.co2
@@ -108,8 +122,12 @@ class Dummy():
 disp = grove_4_digit_display.Grove(16, 17, brightness=grove_4_digit_display.BRIGHT_HIGHEST)
 button = button.Button(pin=5, double_press_threshold=0.4)
 service = thingSpeakService.ThingSpeakService()
+# buzzer = buzzer.Buzzer()
 
 dummy = Dummy()
-SM = StateMachine(button=button, display=disp, sensor_service=service)
-while True:
-    SM.run()
+SM = StateMachine(button=button, display=disp, sensor_service=service, buzzer=dummy)
+try:
+  while True:
+      SM.run()
+except KeyboardInterrupt:
+  disp.show("    ")
