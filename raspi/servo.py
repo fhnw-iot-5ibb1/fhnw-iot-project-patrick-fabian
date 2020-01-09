@@ -1,24 +1,23 @@
-
-# servo_test.py - Test functionality of SG90 Micro Servo
-#
-# Written By: David Such
-
 import pigpio
 
-servo_pin = 18
-pulsewidth = 1500     # Should be the centre for a SG90
+class Servo:
 
-# setup
-pi = pigpio.pi()
-pi.set_servo_pulsewidth(servo_pin, pulsewidth)
+    def __init__(self):
+        self.servo_pin = 18
+        self.gpio = pigpio.pi()
+        self.gpio.set_servo_pulsewidth(self.servo_pin, 1500)
 
-try:
-    while True:
-        pulsewidth = int(input("Enter Duty Cycle (Left = 500 to Right = 2500):"))
-        pi.set_servo_pulsewidth(servo_pin, pulsewidth)
-            
-except KeyboardInterrupt:
-    print("CTRL-C: Terminating program.")
-finally:
-    print("Cleaning up GPIO...")
-    pi.stop()
+    def set_pulsewidth(self, pulsewidth):
+        self.pgio.set_servo_pulsewidth(self.servo_pin, self.translate(pulsewidth, 0, 5000, 500, 2450))
+
+    # credits go to stackoverflow (https://stackoverflow.com/questions/1969240/mapping-a-range-of-values-to-another)
+    def translate(self, value, fromMin, fromMax, toMin, toMax):
+        # Figure out how 'wide' each range is
+        fromSpan = fromMax - fromMin
+        toSpan = toMax - toMin
+
+        # Convert the left range into a 0-1 range (float)
+        valueScaled = float(value - fromMin) / float(fromSpan)
+
+        # Convert the 0-1 range into a value in the right range.
+        return toMin + (valueScaled * toSpan)
