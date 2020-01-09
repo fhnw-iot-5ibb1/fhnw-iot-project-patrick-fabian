@@ -18,13 +18,16 @@ class ThingSpeakService:
     def get_readings_json(self, nr_readings):
         current_time = time()
         if current_time - self.last_read_time > self.read_delay:
-            self.last_read_time = current_time
-            req = self.url + str(self.channel) + '/feeds.json?api_key=' + self.api_key + '&results=' + str(nr_readings)
-            response = requests.get(req)
-            if response.status_code == 200:
-                self.last_reading = response.json()
-                return response.json()
-            else:
+            try:
+                self.last_read_time = current_time
+                req = self.url + str(self.channel) + '/feeds.json?api_key=' + self.api_key + '&results=' + str(nr_readings)
+                response = requests.get(req)
+                if response.status_code == 200:
+                    self.last_reading = response.json()
+                    return response.json()
+                else:
+                    return self.last_reading
+            except:
                 return self.last_reading
         else:
             return self.last_reading
