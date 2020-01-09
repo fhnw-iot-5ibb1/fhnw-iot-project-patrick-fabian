@@ -41,10 +41,10 @@ class ThingSpeakService:
             return readings
 
     def get_co2(self, nr=1):
-        return self.get_field(self.co2_field, nr)
+        return int(self.get_field(self.co2_field, nr))
 
     def get_temp(self, nr=1):
-        return self.get_field(self.temp_field, nr)
+        return float(self.get_field(self.temp_field, nr))
 
     def get_hum(self, nr=1):
-        return self.get_field(self.hum_field, nr)
+        return float(self.get_field(self.hum_field, nr))
