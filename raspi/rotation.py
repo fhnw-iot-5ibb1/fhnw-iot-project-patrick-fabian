@@ -1,7 +1,7 @@
 import Utils
 from grove.grove_rotary_angle_sensor import GroveRotaryAngleSensor
 
-class Servo:
+class RotationSensor:
 
     def __init__(self):
         self.rot_pin = 4
