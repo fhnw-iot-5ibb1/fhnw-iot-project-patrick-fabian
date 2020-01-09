@@ -24,8 +24,8 @@ class ThingSpeakService:
             if response.status_code == 200:
                 self.last_reading = response.json()
                 return response.json()
-            elif response.status_code == 404:
-                raise Exception('bad response ' + str(response.status_code))
+            else:
+                return self.last_reading
         else:
             return self.last_reading
 
