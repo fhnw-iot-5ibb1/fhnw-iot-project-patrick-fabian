@@ -14,6 +14,8 @@ class StateMachine():
         self.state = self.co2
         self.co2_threshold = 2000
         self.alarm_muted = False
+        
+        self.i = 0
 
     def run(self):
         self.state()
@@ -33,23 +35,33 @@ class StateMachine():
         elif self.button.was_pressed():
             self.state = states[(states.index(self.state) + 1) % len(states)]
         self.button.reset()
+        
+    def show_text(self, text):
+        self.i = (self.i + 1) % (len(text) + 4)
+        self.display.show(f"    {text}    "[self.i:self.i+4])
 
     def temp(self):
-        print("temp")
+        t = self.sensor_service.get_temp()
+        print(f"temp: {t}")
+        self.display.show(f"{str(round(t))[-2:]}*C")
 
         # next state
         self.cycle_display()
         self.test_for_alarm()
 
     def hum(self):
-        print("hum")
+        h = self.sensor_service.get_hum()
+        print(f"hum: {h}")
+        self.display.show(f"h {str(round(h))[-2:]}")
 
         # next state
         self.cycle_display()
         self.test_for_alarm()
 
     def co2(self):
-        print("co2")
+        co2 = self.sensor_service.get_co2()
+        print(f"co2: {co2}")
+        self.display.show(f"{co2:4}")
 
         # next state
         self.cycle_display()
@@ -95,19 +107,9 @@ class Dummy():
 
 disp = grove_4_digit_display.Grove(16, 17, brightness=grove_4_digit_display.BRIGHT_HIGHEST)
 button = button.Button(pin=5, double_press_threshold=0.4)
+service = thingSpeakService.ThingSpeakService()
 
 dummy = Dummy()
-SM = StateMachine(button=dummy, display=dummy, sensor_service=dummy)
+SM = StateMachine(button=button, display=disp, sensor_service=service)
 while True:
     SM.run()
-    time.sleep(0.5)
-    inp = int(input("1 => press; 2 => double_pressed: "))
-
-    if inp == 2:
-        dummy.double_pressed = True
-    elif inp == 1:
-        dummy.pressed = True
-    elif inp > 100:
-        dummy.co2 = inp
-
-
