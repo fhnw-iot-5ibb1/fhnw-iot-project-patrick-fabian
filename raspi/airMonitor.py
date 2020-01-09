@@ -4,15 +4,17 @@ from time import time
 import button
 import thingSpeakService
 import buzzer
+import servo
 from grove import grove_4_digit_display
 
 class StateMachine():
-    def __init__(self, button, display, sensor_service, buzzer, rotation_sensor):
+    def __init__(self, button, display, sensor_service, buzzer, rotation_sensor, servo):
         self.button = button
         self.display = display
         self.sensor_service = sensor_service
         self.buzzer = buzzer
         self.rotation_sensor = rotation_sensor
+        self.servo = servo
 
         self.state = self.co2
         self.old_state = self.state
@@ -26,7 +28,11 @@ class StateMachine():
         if self.state != self.old_state:
           self.old_state = self.state
           self.state_change_time = time()
-          
+        
+        # display co2 measurement with servo
+        self.servo.set_pulsewidth(self.sensor_service.get_co2())
+        
+        # run state
         self.state()
 
     def test_for_alarm(self):
@@ -137,9 +143,10 @@ disp = grove_4_digit_display.Grove(16, 17, brightness=grove_4_digit_display.BRIG
 button = button.Button(pin=5, double_press_threshold=0.4)
 service = thingSpeakService.ThingSpeakService()
 buzzer = buzzer.Buzzer()
+servo = servo.Servo()
 
 dummy = Dummy()
-SM = StateMachine(button=button, display=disp, sensor_service=service, buzzer=buzzer, rotation_sensor=dummy)
+SM = StateMachine(button=button, display=disp, sensor_service=service, buzzer=buzzer, rotation_sensor=dummy, servo=servo)
 try:
   while True:
       SM.run()
