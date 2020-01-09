@@ -1,5 +1,5 @@
 import requests
-
+from time import time, sleep
 
 class ThingSpeakService:
 
@@ -10,14 +10,24 @@ class ThingSpeakService:
         self.co2_field = 'field1'
         self.temp_field = 'field2'
         self.hum_field = 'field3'
+        self.read_delay = 10
+        self.last_read_time = 0
+        self.last_reading = ""
+        
 
     def get_readings_json(self, nr_readings):
-        req = self.url + str(self.channel) + '/feeds.json?api_key=' + self.api_key + '&results=' + str(nr_readings)
-        response = requests.get(req)
-        if response.status_code == 200:
-            return response.json()
-        elif response.status_code == 404:
-            raise Exception('bad response ' + str(response.status_code))
+        current_time = time()
+        if current_time - self.last_read_time > self.read_delay:
+            self.last_read_time = current_time
+            req = self.url + str(self.channel) + '/feeds.json?api_key=' + self.api_key + '&results=' + str(nr_readings)
+            response = requests.get(req)
+            if response.status_code == 200:
+                self.last_reading = response.json()
+                return response.json()
+            elif response.status_code == 404:
+                raise Exception('bad response ' + str(response.status_code))
+        else:
+            return self.last_reading
 
     def get_field(self, field_name, num_readings):
         json = self.get_readings_json(num_readings)
