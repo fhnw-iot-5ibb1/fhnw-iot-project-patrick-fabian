@@ -9,6 +9,9 @@ import rotation
 import led
 from grove import grove_4_digit_display
 
+THING_SPEAK_CHANNEL = 935198
+THING_SPEAK_API_KEY = '81SYGRV7PHQU25C8'
+
 class StateMachine():
     def __init__(self, button, display, sensor_service, buzzer, rotation_sensor, servo, led):
         self.button = button
@@ -79,7 +82,7 @@ class StateMachine():
     def temp(self):
         t = self.sensor_service.get_temp()
         # print(f"temp: {t}")
-        self.display.show(f"{str(round(t))[-2:]}*C")
+        self.display.show(f"{str(round(t))[-2:]:2}*C")
 
         # next state
         self.cycle_display()
@@ -88,7 +91,7 @@ class StateMachine():
     def hum(self):
         h = self.sensor_service.get_hum()
         # print(f"hum: {h}")
-        self.display.show(f"h {str(round(h))[-2:]}")
+        self.display.show(f"h {str(round(h))[-2:]:2}")
 
         # next state
         self.cycle_display()
@@ -162,11 +165,11 @@ class Dummy():
 
 disp = grove_4_digit_display.Grove(16, 17, brightness=grove_4_digit_display.BRIGHT_HIGHEST)
 button = button.Button(pin=5, double_press_threshold=0.4)
-service = thingSpeakService.ThingSpeakService()
-buzzer = buzzer.Buzzer()
-servo = servo.Servo()
-rot_sensor = rotation.RotationSensor()
-led_actuator = led.Led()
+service = thingSpeakService.ThingSpeakService(channel=THING_SPEAK_CHANNEL, api_key=THING_SPEAK_API_KEY)
+buzzer = buzzer.Buzzer(12)
+servo = servo.Servo(pin=18, min=0, max=5000)
+rot_sensor = rotation.RotationSensor(pin=4, min=0, max=5000)
+led_actuator = led.Led(6)
 
 dummy = Dummy()
 SM = StateMachine(button=button, display=disp, sensor_service=service, buzzer=buzzer, rotation_sensor=rot_sensor, servo=servo, led=led_actuator)

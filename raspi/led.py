@@ -2,8 +2,8 @@ import pigpio
 
 class Led:
 
-    def __init__(self):
-        self.ledPin = 6
+    def __init__(self, pin):
+        self.ledPin = pin
         self.gpio = pigpio.pi()
 
     def turn_on(self):

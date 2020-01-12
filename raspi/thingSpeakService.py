@@ -3,10 +3,10 @@ from time import time, sleep
 
 class ThingSpeakService:
 
-    def __init__(self):
+    def __init__(self, channel, api_key):
         self.url = 'https://api.thingspeak.com/channels/'
-        self.channel = 935198
-        self.api_key = '81SYGRV7PHQU25C8'
+        self.channel = channel
+        self.api_key = api_key
         self.co2_field = 'field1'
         self.temp_field = 'field2'
         self.hum_field = 'field3'
@@ -44,10 +44,13 @@ class ThingSpeakService:
             return readings
 
     def get_co2(self, nr=1):
-        return int(self.get_field(self.co2_field, nr))
+        value = self.get_field(self.co2_field, nr)
+        return 0 if value is None else int(value)
 
     def get_temp(self, nr=1):
-        return float(self.get_field(self.temp_field, nr))
+        value = self.get_field(self.temp_field, nr)
+        return 0 if value is None else float(value)
 
     def get_hum(self, nr=1):
-        return float(self.get_field(self.hum_field, nr))
+        value = self.get_field(self.hum_field, nr)
+        return 0 if value is None else float(value)

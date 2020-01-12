@@ -2,8 +2,8 @@ import pigpio
 
 class Buzzer:
 
-    def __init__(self):
-        self.buzzerPin = 12
+    def __init__(self, pin):
+        self.buzzerPin = pin
         self.gpio = pigpio.pi()
 
     def turn_on(self):
