@@ -132,36 +132,6 @@ class StateMachine():
             self.state = self.co2
             self.buzzer.turn_off()
 
-class Dummy():
-    def __init__(self):
-        self.pressed = False
-        self.double_pressed = False
-        self.co2 = 1800
-
-    def was_double_pressed(self):
-        state = self.double_pressed
-        self.double_pressed = False
-        return state
-
-    def was_pressed(self):
-        state = self.pressed
-        self.pressed = False
-        return state
-        
-    def reset(self):
-        pass
-        
-    def get(self):
-        return 1500
-        
-    def turn_on(self):
-        print("UUUUIIIIIIIUUUUUUIIII")
-    
-    def turn_off(self):
-        pass
-
-    def get_co2(self):
-        return self.co2
 
 disp = grove_4_digit_display.Grove(16, 17, brightness=grove_4_digit_display.BRIGHT_HIGHEST)
 button = button.Button(pin=5, double_press_threshold=0.4)
@@ -171,7 +141,6 @@ servo = servo.Servo(pin=18, min=0, max=5000)
 rot_sensor = rotation.RotationSensor(pin=4, min=0, max=5000)
 led_actuator = led.Led(6)
 
-dummy = Dummy()
 SM = StateMachine(button=button, display=disp, sensor_service=service, buzzer=buzzer, rotation_sensor=rot_sensor, servo=servo, led=led_actuator)
 try:
   while True:
