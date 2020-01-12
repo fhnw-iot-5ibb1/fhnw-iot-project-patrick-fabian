@@ -1,8 +1,6 @@
 # IoT Engineering
-## Project MY_TEAM_PROJECT_TITLE
-
-> *Note: Do not work on this repository right away.*<br/>
-> *[Create your copy or join a team by clicking this GitHub Classroom link](https://classroom.github.com/g/gALXMYRD).*
+## Project Air Monitor
+A CO<sub>2</sub> monitoring system with configurable alert threshold.
 
 ## Introduction
 This project is part of the [IoT Engineering](../../../fhnw-iot) course.
@@ -14,26 +12,88 @@ This project is part of the [IoT Engineering](../../../fhnw-iot) course.
 * Both team members are able to explain the project.
 
 ### Team members
-* @MY_TEAM_PROJECT_GITHUB_USER_1, REAL_NAME_1
-* @MY_TEAM_PROJECT_GITHUB_USER_2, REAL_NAME_2
+* [@patrickackermann](https://github.com/patrickackermann), Patrick Ackermann
+* [@fabianw931](https://github.com/fabianw931), Fabian Wildhaber
 
 ## Deliverables
 The following deliverables are mandatory.
 
 ### Source code
-Source code, Arduino C, JS or Python, committed to (this) project repo.
+> Source code, Arduino C, Python, committed to (this) project repo.
 
-[Arduino/MY_TEAM_PROJECT/MY_TEAM_PROJECT.ino](Arduino/MY_TEAM_PROJECT_FILE.ino)
+#### Sensor device
+> Embedded code / microcontroller firmware.
 
-[Nodejs/MY_TEAM_PROJECT.js](Nodejs/MY_TEAM_PROJECT_FILE.js)
+<img src="Docs/SensorDevice.jpg" width="640"/>
 
-[Python/MY_TEAM_PROJECT.py](Nodejs/MY_TEAM_PROJECT_FILE.py)
+##### Source code
+[arduino/ESP8266_WifiSensorClient/ESP8266_WifiSensorClient.ino](arduino/ESP8266_WifiSensorClient/ESP8266_WifiSensorClient.ino)
 
-... (adapt as required)
+##### Setup software
+* Edit [ESP8266_WifiSensorClient.ino](arduino/ESP8266_WifiSensorClient/ESP8266_WifiSensorClient.ino) to set WLAN ssid, password and ThingSpeak write api key
+    ```
+    const char *ssid = SSID;
+    const char *password = PASSWORD;
+    
+    const char *api_key = "8UM10BCWH6OHV1KK";
+    ```
+    
+##### Setup hardware
+* The sensor device consists of a [ESP8266](https://github.com/tamberg/fhnw-iot/wiki/Feather-Huzzah-ESP8266), , [Grove adapter](https://github.com/tamberg/fhnw-iot/wiki/Grove-Adapters#grove-shield-for-feather) and a [SCD30 sensor](http://wiki.seeedstudio.com/Grove-CO2_Temperature_Humidity_Sensor-SCD30/)
+* Stack the ESP8266 on top of the Grove adapter.
+* Connect the SCD30 sensor to I2C_1 of the Grove adapter.
 
-1) Embedded code / microcontroller firmware.
-2) Glue Code used on the gateway or "in the cloud".
-3) App or Web UI code, or IoT platform setup steps.
+#### Actuator device
+
+<img src=“Docs/ActuatorDevice.jpg” width=“640”/>
+
+##### Source code
+* [raspi/airMonitor.py](raspi/airMonitor.py)
+* [raspi/...](raspi/)
+
+##### Setup software
+* clone this repo onto the pi
+    ```
+    git clone https://github.com/fhnw-iot-5ibb1/fhnw-iot-project-patrick-fabian.git
+    ```
+* Set ThingSpeak channel and api key in [airMonitor.py](raspi/airMonitor.py)
+    ```
+    THING_SPEAK_CHANNEL = 935198
+    THING_SPEAK_API_KEY = '81SYGRV7PHQU25C8'
+    ```
+* Install necessary libraries:
+    * [pigpio](http://abyz.me.uk/rpi/pigpio/download.html)
+    * [grove.py](https://github.com/Seeed-Studio/grove.py#installation)
+    * [requests](https://pypi.org/project/requests/)
+* start the pigpio deamon
+  `sudo pigpiod`
+
+*start the script when the pi boots up:*
+* start the pigpio deamon when the pi boots up
+  `sudo crontab -e` and then add the following line:
+  `@reboot sudo pigpiod`
+* install the [`air-monitor.service`](raspi/air-monitor.service) 
+  ```
+  sudo cp /home/pi/fhnw-iot-project-patrick-fabian/raspi/air-monitor.service /lib/systemd/system/
+  sudo systemctl enable air-monitor.service
+  ```
+  
+##### Setup hardware
+* The actuator device consists of a [Raspberry Pi Zero W](https://github.com/tamberg/fhnw-iot/wiki/Raspberry-Pi-Zero-W), [Grove adapter](https://github.com/tamberg/fhnw-iot/wiki/Grove-Adapters#grove-base-hat-for-raspberry-pi), [buzzer](https://github.com/tamberg/fhnw-iot/wiki/Grove-Adapters#grove-base-hat-for-raspberry-pi), [LED](https://github.com/tamberg/fhnw-iot/wiki/Grove-Adapters#grove-base-hat-for-raspberry-pi), [button](https://github.com/tamberg/fhnw-iot/wiki/Grove-Adapters#grove-base-hat-for-raspberry-pi), [rotary angle sensor](https://github.com/tamberg/fhnw-iot/wiki/Grove-Adapters#grove-base-hat-for-raspberry-pi), micro servo and a [display](https://github.com/tamberg/fhnw-iot/wiki/Grove-Adapters#grove-base-hat-for-raspberry-pi)
+* Stack the Grove adapter on the Raspberry Pi
+* Connect the butter to PWM, button to D5, rotary angle sensor to A4, display to D16
+* Connect the micro servo to [BCM 18](https://pinout.xyz/), 5V and Ground
+* Connect the LED to [BCM 6](https://pinout.xyz/), 3.3V/5V and Ground
+
+#### ThingSpeak backend
+> ... IoT platform setup steps.
+
+* Go to http://thingspeak.com
+* Create a Channel
+* Add _field1_ named _co2(ppm)_
+* Add _field2_ named _temp(C)_
+* Add _field3_ named _humidity(%)_
+* Set channel visibility to public (for demo)
 
 ### Presentation
 4-slide presentation, PDF format, committed to (this) project repo.
