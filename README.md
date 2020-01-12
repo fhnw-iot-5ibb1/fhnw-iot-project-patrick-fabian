@@ -110,21 +110,21 @@ Working end-to-end prototype, "device to cloud", part of your 10' presentation.
 
 1) Sensor input on a IoT device triggers an event.
 
-* Sensor device
-    * Use case: Measure temperature, humidity and CO<sub>2</sub>
+    * Sensor device
+        * Use case: Measure temperature, humidity and CO<sub>2</sub>
 
-* Actuator device
-    * Use case: Set the CO<sub>2</sub> limit
+    * Actuator device
+        * Use case: Set the CO<sub>2</sub> limit
 
 2) The event or measurement shows up online, in an app or Web client.
 
-* Web browser
-    * https://thingspeak.com/channels/935198
+    * Web browser
+        * https://thingspeak.com/channels/935198
 
 3) The event triggers actuator output on the same or on a separate IoT device.
 
-* Actuator device
-    * Use case: Alarm when CO<sub>2</sub> measurement too high
+    * Actuator device
+        * Use case: Alarm when CO<sub>2</sub> measurement too high
 
 ## Submission deadline
 Commit and push to (this) project repo before Demo Day, _13.01.2020, 00:00_.
