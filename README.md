@@ -39,7 +39,7 @@ The following deliverables are mandatory.
     ```
     
 ##### Setup hardware
-* The sensor device consists of a [ESP8266](https://github.com/tamberg/fhnw-iot/wiki/Feather-Huzzah-ESP8266), , [Grove adapter](https://github.com/tamberg/fhnw-iot/wiki/Grove-Adapters#grove-shield-for-feather) and a [SCD30 sensor](http://wiki.seeedstudio.com/Grove-CO2_Temperature_Humidity_Sensor-SCD30/)
+* The sensor device consists of a [ESP8266](https://github.com/tamberg/fhnw-iot/wiki/Feather-Huzzah-ESP8266), [Grove adapter](https://github.com/tamberg/fhnw-iot/wiki/Grove-Adapters#grove-shield-for-feather) and a [SCD30 sensor](http://wiki.seeedstudio.com/Grove-CO2_Temperature_Humidity_Sensor-SCD30/)
 * Stack the ESP8266 on top of the Grove adapter.
 * Connect the SCD30 sensor to I2C_1 of the Grove adapter.
 
@@ -98,7 +98,7 @@ The following deliverables are mandatory.
 ### Presentation
 4-slide presentation, PDF format, committed to (this) project repo.
 
-[MY_TEAM_PROJECT_PRESENTATION.pdf](MY_TEAM_PROJECT_PRESENTATION.pdf)
+[Docs/AirMonitor.pdf](Docs/AirMonitor.pdf)
 
 1) Use-case of your project.
 2) Reference model of your project.
@@ -107,8 +107,6 @@ The following deliverables are mandatory.
 
 ### Live demo
 Working end-to-end prototype, "device to cloud", part of your 10' presentation.
-
-[https://MY_TEAM_PROJECT_DEMO_HOST:PORT/](https://MY_TEAM_PROJECT_DEMO_HOST:PORT/)
 
 1) Sensor input on a IoT device triggers an event.
 2) The event or measurement shows up online, in an app or Web client.
