@@ -45,7 +45,7 @@ The following deliverables are mandatory.
 
 #### Actuator device
 
-<img src=“Docs/ActuatorDevice.jpg” width=“640”/>
+<img src="Docs/ActuatorDevice.jpg" width="640"/>
 
 ##### Source code
 * [raspi/airMonitor.py](raspi/airMonitor.py)
